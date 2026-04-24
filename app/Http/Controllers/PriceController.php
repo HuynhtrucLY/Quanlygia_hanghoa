@@ -276,8 +276,8 @@ public function getPriceHistory($productId, $supplierId)
         ->select(
             'p.ten_san_pham',
             's.ten_nha_cung_cap',
-            'h.ma_san_pham', // 👈 thêm dòng này
-            'h.ma_nha_cung_cap', // 👈 thêm dòng này
+            'h.ma_san_pham', 
+            'h.ma_nha_cung_cap', 
             'h.gia_nhap_cu',
             'h.gia_nhap_moi',
             'h.gia_ban_cu',
