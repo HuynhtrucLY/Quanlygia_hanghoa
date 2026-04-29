@@ -72,7 +72,7 @@
                         <td class="text-start text-dark">{{ $p->ten_nha_cung_cap }}</td>
                         <td class="fw-bold text-danger">{{ number_format($p->gia_nhap, 0, ',', '.') }} đ</td>
                         <td class="fw-bold text-primary">{{ number_format($p->gia_ban, 0, ',', '.') }} đ</td>
-                        <td class="text-muted small">{{ number_format($p->gia_thi_truong, 0, ',', '.') }} đ</td>
+                        <td class="text-muted ">{{ number_format($p->gia_thi_truong, 0, ',', '.') }} đ</td>
                         <td>
                             <div class="btn-group">
                                 <a href="/prices/edit/{{ $p->id }}" class="btn btn-outline-warning btn-sm mx-1">✏️ Sửa</a>

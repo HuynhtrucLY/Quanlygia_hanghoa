@@ -70,7 +70,7 @@
                     {{-- 🔥 % LỢI NHUẬN --}}
                     <div class="col-md-4 mb-3">
                         <label class="form-label fw-bold text-dark">% Lợi nhuận mục tiêu</label>
-                        <input id="loi_nhuan" type="text" class="form-control" name="loi_nhuan" placeholder="Ví dụ: 10" required>
+                        <input id="loi_nhuan" type="text" class="form-control" name="loi_nhuan" placeholder="Nhập % lợi nhuận" required>
                     </div>
 
                     {{-- 🔥 GIÁ BÁN DỰ KIẾN --}}

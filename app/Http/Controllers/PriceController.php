@@ -53,19 +53,22 @@ class PriceController extends Controller
 
     // 🔥 lọc theo khu vực (GIỮ NGUYÊN)
     if ($request->khu_vuc) {
-        $khuVuc = $request->khu_vuc;
 
-        $query->where(function($q) use ($khuVuc) {
-            $q->where('suppliers.dia_chi', 'like', '%' . $khuVuc . '%')
-              ->orWhere('suppliers.dia_chi', 'like', '%' . str_replace('.', '', $khuVuc) . '%');
-        });
-    }
+    $khuVuc = strtolower(trim($request->khu_vuc));
+    $khuVuc = str_replace(['.', ' '], '', $khuVuc);
+
+    $query->where(function($q) use ($khuVuc) {
+        $q->whereRaw(
+            "REPLACE(REPLACE(LOWER(suppliers.dia_chi), '.', ''), ' ', '') LIKE ?",
+            ['%' . $khuVuc . '%']
+        );
+    });
+}
 
     $data = $query->get();
     $products = Product::all();
 
-    $khuVucList = ['Cần Thơ', 'TPHCM', 'Hà Nội', 'An Giang'];
-
+    $khuVucList = config('khuvuc.list');
     return view('prices.index', compact('data', 'products', 'khuVucList'));
 }
 
@@ -336,8 +339,6 @@ public function compare(Request $request)
 {
     $productId = $request->ma_san_pham;
     $khuVuc = $request->khu_vuc;
-
-    // 🔥 mặc định = so NCC
     $type = $request->type ?? 'supplier';
 
     // =========================
@@ -455,7 +456,7 @@ public function compare(Request $request)
         ->values();
 
     $products = DB::table('products')->get();
-    $khuVucList = ['TPHCM', 'Hà Nội', 'An Giang', 'Cần Thơ'];
+$khuVucList = config('khuvuc.list');
 
     return view('prices.compare', compact(
         'latestPrices',
@@ -531,97 +532,103 @@ public function importExcel(Request $request)
             // =========================
             // 1. CHUẨN HÓA
             // =========================
-            $tenSanPham = trim($row[0] ?? '');
-            $danhMuc    = trim($row[1] ?? '');
-            $ncc        = trim($row[2] ?? '');
+            $tenSanPham = ucwords(strtolower(trim($row[0] ?? '')));
+            $danhMuc    = ucwords(strtolower(trim($row[1] ?? '')));
+            $ncc        = ucwords(strtolower(trim($row[2] ?? '')));
 
-            $giaNhap = floatval($row[3] ?? 0);
+            // 🔥 TIỀN VIỆT → KHÔNG LẤY SỐ LẺ
+            $giaNhap = round(floatval($row[3] ?? 0));
+            $giaThiTruong = round(floatval($row[5] ?? 0));
 
-            // 🔥 FIX LỢI NHUẬN (QUAN TRỌNG NHẤT)
+            // =========================
+            // 2. LỢI NHUẬN
+            // =========================
             $rawLoiNhuan = $row[4] ?? 0;
 
-if (is_numeric($rawLoiNhuan)) {
-
-    if ($rawLoiNhuan <= 1) {
-        // 🔥 Excel dạng %:
-        // 0.1 = 10%
-        // 1 = 100%
-        $loiNhuan = $rawLoiNhuan * 100;
-    } else {
-        // 🔥 nhập trực tiếp: 10 = 10%, 100 = 100%
-        $loiNhuan = $rawLoiNhuan;
-    }
-
-} else {
-    // 🔥 dạng string: "10%" hoặc "100%"
-    $loiNhuan = floatval(str_replace('%', '', $rawLoiNhuan));
-}
-
-            $giaThiTruong = floatval($row[5] ?? 0);
+            if (is_numeric($rawLoiNhuan)) {
+                $loiNhuan = ($rawLoiNhuan <= 1)
+                    ? $rawLoiNhuan * 100
+                    : $rawLoiNhuan;
+            } else {
+                $loiNhuan = floatval(str_replace('%', '', $rawLoiNhuan));
+            }
 
             // =========================
-            // 2. VALIDATE
+            // 3. VALIDATE
             // =========================
-            if (!$tenSanPham || !$ncc || $giaNhap <= 0) {
+            if (!$tenSanPham || !$ncc || !$danhMuc || $giaNhap <= 0) {
                 $skipped++;
                 continue;
             }
 
             // =========================
-            // 3. TÍNH GIÁ BÁN
+            // 4. GIÁ BÁN
             // =========================
-            $giaBan = $giaNhap + ($giaNhap * $loiNhuan / 100);
+            $giaBan = round($giaNhap + ($giaNhap * $loiNhuan / 100));
 
             // =========================
-            // 4. CATEGORY
+            // 5. CATEGORY
             // =========================
             $category = Category::firstOrCreate([
                 'ten_danh_muc' => $danhMuc
             ]);
 
             // =========================
-            // 5. SUPPLIER
+            // 6. SUPPLIER
             // =========================
-            $supplier = Supplier::firstOrCreate([
-                'ten_nha_cung_cap' => $ncc
-            ]);
+            $supplier = Supplier::whereRaw(
+                'LOWER(TRIM(ten_nha_cung_cap)) = ?',
+                [strtolower(trim($ncc))]
+            )->first();
+
+            if (!$supplier) {
+                $supplier = Supplier::create([
+                    'ten_nha_cung_cap' => $ncc,
+                    'dia_chi' => $row[8] ?? null,
+                    'so_dien_thoai' => $row[9] ?? null,
+                ]);
+            } else {
+                $supplier->update([
+                    'dia_chi' => $row[8] ?: $supplier->dia_chi,
+                    'so_dien_thoai' => $row[9] ?: $supplier->so_dien_thoai,
+                ]);
+            }
 
             // =========================
-            // 6. PRODUCT (CHỐNG TRÙNG)
+            // 7. PRODUCT
             // =========================
             $product = Product::whereRaw(
                 'LOWER(TRIM(ten_san_pham)) = ?',
                 [strtolower(trim($tenSanPham))]
             )->first();
 
-            // 🔥 lấy thêm từ Excel (cột 6,7)
-$donViTinh = trim($row[6] ?? '');
-$xuatXu    = trim($row[7] ?? '');
+            $donViTinh = trim($row[6] ?? '');
+            $xuatXu    = trim($row[7] ?? '');
 
-if (!$product) {
-    $product = Product::create([
-        'ten_san_pham' => $tenSanPham,
-        'ma_danh_muc' => $category->ma_danh_muc,
-        'don_vi_tinh' => $donViTinh ?: null,
-        'xuat_xu'     => $xuatXu ?: null,
-    ]);
-} else {
-    // 🔥 nếu đã có sản phẩm thì cập nhật nếu đang trống
-    $product->update([
-        'don_vi_tinh' => $product->don_vi_tinh ?: $donViTinh,
-        'xuat_xu'     => $product->xuat_xu ?: $xuatXu,
-    ]);
-}
+            if (!$product) {
+                $product = Product::create([
+                    'ten_san_pham' => $tenSanPham,
+                    'ma_danh_muc' => $category->ma_danh_muc,
+                    'don_vi_tinh' => $donViTinh ?: null,
+                    'xuat_xu'     => $xuatXu ?: null,
+                ]);
+            } else {
+                $product->update([
+                    'ma_danh_muc' => $category->ma_danh_muc,
+                    'don_vi_tinh' => $product->don_vi_tinh ?: $donViTinh,
+                    'xuat_xu'     => $product->xuat_xu ?: $xuatXu,
+                ]);
+            }
 
             // =========================
-            // 7. LẤY PRICE
+            // 8. PRICE
             // =========================
             $price = Price::where('ma_san_pham', $product->ma_san_pham)
                 ->where('ma_nha_cung_cap', $supplier->ma_nha_cung_cap)
                 ->first();
 
             // =========================
-            // 8. INSERT
+            // 9. INSERT
             // =========================
             if (!$price) {
 
@@ -639,19 +646,19 @@ if (!$product) {
             }
 
             // =========================
-            // 9. KHÔNG ĐỔI → BỎ
+            // 10. SO SÁNH (FIX LỖI FLOAT)
             // =========================
             if (
-                $price->gia_nhap == $giaNhap &&
-                $price->gia_ban == $giaBan &&
-                $price->gia_thi_truong == $giaThiTruong
+                intval($price->gia_nhap) == $giaNhap &&
+                intval($price->gia_ban) == $giaBan &&
+                intval($price->gia_thi_truong) == $giaThiTruong
             ) {
                 $skipped++;
                 continue;
             }
 
             // =========================
-            // 10. HISTORY
+            // 11. HISTORY
             // =========================
             PriceHistory::create([
                 'ma_san_pham' => $product->ma_san_pham,
@@ -665,7 +672,7 @@ if (!$product) {
             ]);
 
             // =========================
-            // 11. UPDATE
+            // 12. UPDATE
             // =========================
             $price->update([
                 'gia_nhap' => $giaNhap,

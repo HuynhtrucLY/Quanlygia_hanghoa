@@ -80,16 +80,16 @@
         </form>
     </div>
 
-    <div class="card border-0 shadow-sm rounded-3 overflow-hidden bg-white">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle text-center mb-0">
-                <thead class="table-dark">
+     <div class="card shadow-sm border-0 overflow-hidden">
+        <div class="table-responsive text-nowrap">
+            <table class="table table-bordered table-hover align-middle text-center mb-0">
+                <thead class="table-light text-secondary">
                     <tr class="text-warning border-bottom-0">
                         <th class="py-3 fw-bold">Sản phẩm</th>
                         <th class="py-3 fw-bold">Nhà cung cấp</th>
                         <th class="py-3 fw-bold">Giá nhập</th>
                         <th class="py-3 fw-bold">Giá bán</th>
-                        <th class="py-3 fw-bold">Thị trường</th>
+                        <th class="py-3 fw-bold">Giá thị trường</th>
                         <th class="py-3 fw-bold">Lợi nhuận</th>
                         <th class="py-3 fw-bold text-nowrap">Chênh lệch % (N/TT)</th>
                         <th class="py-3 fw-bold text-nowrap">Chênh lệch % (B/TT)</th>

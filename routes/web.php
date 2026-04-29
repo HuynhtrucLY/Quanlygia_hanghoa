@@ -9,11 +9,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PriceController;
 use App\Http\Controllers\UserController;
 
-/*
-|--------------------------------------------------------------------------
-| WEB ROUTES
-|--------------------------------------------------------------------------
-*/
+
 
 // 🔐 LOGIN
 // ================= MẶC ĐỊNH =================
