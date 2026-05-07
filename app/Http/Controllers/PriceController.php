@@ -17,7 +17,7 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class PriceController extends Controller
 {
-    // 📊 DANH SÁCH GIÁ
+    // DANH SÁCH GIÁ
   public function index(Request $request)
 {
     $query = Price::join('products', 'prices.ma_san_pham', '=', 'products.ma_san_pham')
@@ -35,8 +35,6 @@ class PriceController extends Controller
         )
         ->orderBy('products.ten_san_pham', 'asc')
         ->orderBy('suppliers.ten_nha_cung_cap', 'asc');
-
-    // 🔍 SEARCH (THÊM MỚI - KHÔNG ẢNH HƯỞNG CŨ)
     if ($request->keyword) {
         $keyword = trim($request->keyword);
 
@@ -46,12 +44,12 @@ class PriceController extends Controller
         });
     }
 
-    // 🔍 lọc theo sản phẩm (GIỮ NGUYÊN)
+    // lọc theo sản phẩm 
     if ($request->ma_san_pham) {
         $query->where('prices.ma_san_pham', $request->ma_san_pham);
     }
 
-    // 🔥 lọc theo khu vực (GIỮ NGUYÊN)
+    // lọc theo khu vực 
     if ($request->khu_vuc) {
 
     $khuVuc = strtolower(trim($request->khu_vuc));
@@ -72,7 +70,7 @@ class PriceController extends Controller
     return view('prices.index', compact('data', 'products', 'khuVucList'));
 }
 
-    // ➕ FORM TẠO MỚI
+    // FORM TẠO MỚI
     public function create()
     {
         $products = Product::all();
@@ -81,25 +79,21 @@ class PriceController extends Controller
         return view('prices.create', compact('products', 'suppliers'));
     }
 
-    // 💾 LƯU / CẬP NHẬT GIÁ (TRÁNH TRÙNG)
+    // LƯU / CẬP NHẬT GIÁ (TRÁNH TRÙNG)
     public function store(Request $request)
 {
-    // 🔥 CHUẨN HÓA % (10 hoặc 10%)
+    // CHUẨN HÓA % (10 hoặc 10%)
     $loi_nhuan = str_replace('%', '', $request->loi_nhuan);
     $loi_nhuan = (float) trim($loi_nhuan);
-
-    // 🔥 MERGE lại request
     $request->merge([
         'loi_nhuan' => $loi_nhuan
     ]);
-
-    // 🔥 VALIDATE
     $request->validate([
         'ma_san_pham' => 'required',
         'ma_nha_cung_cap' => 'required',
-        'gia_nhap' => 'required|numeric|min:1', // Phải là số và lớn hơn 0
-        'loi_nhuan' => 'required|numeric|min:0', // Lợi nhuận không được âm
-        'gia_thi_truong' => 'required|numeric|min:1', // Phải lớn hơn 0
+        'gia_nhap' => 'required|numeric|min:1', 
+        'loi_nhuan' => 'required|numeric|min:0', 
+        'gia_thi_truong' => 'required|numeric|min:1',
     ], [
         'gia_nhap.required' => 'Vui lòng nhập giá nhập.',
         'gia_nhap.min' => 'Giá nhập phải lớn hơn 0.',
@@ -113,7 +107,7 @@ class PriceController extends Controller
     DB::beginTransaction();
 
     try {
-        // 🔥 CHECK TRÙNG
+        // CHECK TRÙNG
         $exists = Price::where('ma_san_pham', $request->ma_san_pham)
             ->where('ma_nha_cung_cap', $request->ma_nha_cung_cap)
             ->exists();
@@ -122,15 +116,13 @@ class PriceController extends Controller
             DB::rollBack();
             return back()->with('error', '❌ Báo giá đã tồn tại!');
         }
-
-        // 🔥 ÉP KIỂU CHUẨN
         $gia_nhap = (float) $request->gia_nhap;
         $gia_thi_truong = (float) $request->gia_thi_truong;
 
-        // 🔥 TÍNH GIÁ BÁN
+        // TÍNH GIÁ BÁN
         $gia_ban = $gia_nhap + ($gia_nhap * $loi_nhuan / 100);
 
-        // ✅ INSERT PRICE
+        // INSERT PRICE
         Price::create([
             'ma_san_pham' => $request->ma_san_pham,
             'ma_nha_cung_cap' => $request->ma_nha_cung_cap,
@@ -140,7 +132,7 @@ class PriceController extends Controller
             'thoi_gian_cap_nhat' => now()
         ]);
 
-        // ✅ INSERT HISTORY
+        // INSERT HISTORY
         DB::table('price_history')->insert([
             'ma_san_pham' => $request->ma_san_pham,
             'ma_nha_cung_cap' => $request->ma_nha_cung_cap,
@@ -162,7 +154,7 @@ class PriceController extends Controller
     }
 }
 
-    // ✏️ FORM SỬA
+    // FORM SỬA
     public function edit($id)
     {
         $price = Price::findOrFail($id);
@@ -172,21 +164,16 @@ class PriceController extends Controller
         return view('prices.edit', compact('price', 'products', 'suppliers'));
     }
 
-    // 🔄 CẬP NHẬT TRONG PriceController.php
-
 
 public function update(Request $request, $id)
 {
-    // 🔥 1. CHUẨN HÓA % GIỐNG STORE (QUAN TRỌNG NHẤT)
     $loi_nhuan = str_replace('%', '', $request->loi_nhuan);
     $loi_nhuan = (float) trim($loi_nhuan);
 
-    // 🔥 merge lại request để validate không lỗi
     $request->merge([
         'loi_nhuan' => $loi_nhuan
     ]);
 
-    // 🔥 2. VALIDATE (GIỐNG STORE)
     $request->validate([
         'gia_nhap' => 'required|numeric|min:1',
         'loi_nhuan' => 'required|numeric|min:0',
@@ -203,22 +190,22 @@ public function update(Request $request, $id)
     try {
         $price = Price::findOrFail($id);
 
-        // 🔥 3. CHUẨN HÓA SỐ (fix luôn lỗi dấu chấm)
+        // 3. CHUẨN HÓA SỐ (fix luôn lỗi dấu chấm)
         $new_gia_nhap = (float) str_replace('.', '', $request->gia_nhap);
         $new_gia_thi_truong = (float) str_replace('.', '', $request->gia_thi_truong);
 
-        // 🔥 dùng lại đã xử lý ở trên
+        // dùng lại đã xử lý ở trên
         $loi_nhuan = $request->loi_nhuan;
 
-        // 🔥 4. TÍNH GIÁ BÁN
+        // 4. TÍNH GIÁ BÁN
         $new_gia_ban = $new_gia_nhap + ($new_gia_nhap * $loi_nhuan / 100);
 
-        // 🔥 5. DỮ LIỆU CŨ
+        // 5. DỮ LIỆU CŨ
         $old_gia_nhap = (float) $price->gia_nhap;
         $old_gia_ban = (float) $price->gia_ban;
         $old_gia_thi_truong = (float) $price->gia_thi_truong;
 
-        // 🔥 6. KHÔNG THAY ĐỔI
+        //  6. KHÔNG THAY ĐỔI
         if (
             $old_gia_nhap == $new_gia_nhap &&
             $old_gia_thi_truong == $new_gia_thi_truong &&
@@ -227,7 +214,7 @@ public function update(Request $request, $id)
             return redirect('/prices')->with('info', 'Không có thay đổi nào.');
         }
 
-        // 🔥 7. UPDATE
+        //  7. UPDATE
         $price->update([
             'gia_nhap' => $new_gia_nhap,
             'gia_ban' => $new_gia_ban,
@@ -235,7 +222,7 @@ public function update(Request $request, $id)
             'thoi_gian_cap_nhat' => now(),
         ]);
 
-        // 🔥 8. HISTORY
+        //  8. HISTORY
         $lastHistory = DB::table('price_history')
             ->where('ma_san_pham', $price->ma_san_pham)
             ->where('ma_nha_cung_cap', $price->ma_nha_cung_cap)
@@ -268,7 +255,7 @@ public function update(Request $request, $id)
     }
 }
 
-    // 📜 XEM LỊCH SỬ GIÁ
+    //  XEM LỊCH SỬ GIÁ
 public function getPriceHistory($productId, $supplierId)
 {
     $history = DB::table('price_history as h')
@@ -308,17 +295,17 @@ public function alert()
         ->get()
         ->filter(function ($item) {
 
-            // 🔥 1. BÁN CAO HƠN THỊ TRƯỜNG (mất cạnh tranh)
+            //  1. BÁN CAO HƠN THỊ TRƯỜNG (mất cạnh tranh)
             if ($item->gia_ban > $item->gia_thi_truong) {
                 return true;
             }
 
-            // 🔥 2. NHẬP CAO HƠN THỊ TRƯỜNG (nguồn hàng xấu)
+            //  2. NHẬP CAO HƠN THỊ TRƯỜNG (nguồn hàng xấu)
             if ($item->gia_nhap > $item->gia_thi_truong) {
                 return true;
             }
 
-            // 🔥 3. BIÊN LỢI NHUẬN QUÁ THẤP (< 5%)
+            //  3. BIÊN LỢI NHUẬN QUÁ THẤP (< 5%)
             $profit = $item->gia_ban - $item->gia_nhap;
             $percent = ($item->gia_nhap > 0)
                 ? ($profit / $item->gia_nhap) * 100
@@ -342,7 +329,7 @@ public function compare(Request $request)
     $type = $request->type ?? 'supplier';
 
     // =========================
-    // 🔵 CASE 1: THEO NHÀ CUNG CẤP (GIÁ HIỆN TẠI)
+    // CASE 1: THEO NHÀ CUNG CẤP (GIÁ HIỆN TẠI)
     // =========================
     if ($type == 'supplier') {
 
@@ -376,7 +363,7 @@ public function compare(Request $request)
     }
 
     // =========================
-    // 🟡 CASE 2: THEO THỜI GIAN (HISTORY)
+    // CASE 2: THEO THỜI GIAN (HISTORY)
     // =========================
     else {
 
@@ -405,7 +392,7 @@ public function compare(Request $request)
             $query->where('s.dia_chi', 'like', '%' . $khuVuc . '%');
         }
 
-        // 🔥 lọc thời gian
+        //  lọc thời gian
         if ($type == 'month' && $request->month) {
 
             $query->whereMonth('h.thoi_gian_thay_doi', date('m', strtotime($request->month)))
@@ -438,7 +425,7 @@ public function compare(Request $request)
     }
 
     // =========================
-    // 🔥 GỢI Ý NCC TỐT NHẤT
+    //  GỢI Ý NCC TỐT NHẤT
     // =========================
     $recommend = $latestPrices
         ->map(function ($item) {
@@ -484,22 +471,22 @@ public function recommend()
         ->get();
 
     $result = $rows
-        // 🔥 BƯỚC 1: tính profit trước
+        //  BƯỚC 1: tính profit trước
         ->map(function ($item) {
             $item->profit = $item->gia_ban - $item->gia_nhap;
             return $item;
         })
 
-        // 🔥 BƯỚC 2: lọc điều kiện chuẩn
+        //  BƯỚC 2: lọc điều kiện chuẩn
         ->filter(function ($item) {
             return $item->gia_nhap < $item->gia_thi_truong
-                && $item->profit > 0; // 🔥 thêm điều kiện này
+                && $item->profit > 0; 
         })
 
-        // 🔥 BƯỚC 3: group theo sản phẩm
+        //  BƯỚC 3: group theo sản phẩm
         ->groupBy('ma_san_pham')
 
-        // 🔥 BƯỚC 4: chọn NCC lời cao nhất
+        //  BƯỚC 4: chọn NCC lời cao nhất
         ->map(function ($items) {
             return $items->sortByDesc('profit')->first();
         })
@@ -535,8 +522,6 @@ public function importExcel(Request $request)
             $tenSanPham = ucwords(strtolower(trim($row[0] ?? '')));
             $danhMuc    = ucwords(strtolower(trim($row[1] ?? '')));
             $ncc        = ucwords(strtolower(trim($row[2] ?? '')));
-
-            // 🔥 TIỀN VIỆT → KHÔNG LẤY SỐ LẺ
             $giaNhap = round(floatval($row[3] ?? 0));
             $giaThiTruong = round(floatval($row[5] ?? 0));
 
@@ -646,7 +631,7 @@ public function importExcel(Request $request)
             }
 
             // =========================
-            // 10. SO SÁNH (FIX LỖI FLOAT)
+            // 10. SO SÁNH 
             // =========================
             if (
                 intval($price->gia_nhap) == $giaNhap &&

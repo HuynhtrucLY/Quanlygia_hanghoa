@@ -5,8 +5,6 @@ namespace App\Exports;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Illuminate\Http\Request;
-
-// 🔥 thêm
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -32,8 +30,6 @@ class PriceHistoryExport implements
         $query = DB::table('price_history as h')
             ->join('products as p', 'p.ma_san_pham', '=', 'h.ma_san_pham')
             ->join('suppliers as s', 's.ma_nha_cung_cap', '=', 'h.ma_nha_cung_cap');
-
-        // 🔥 filter
         if ($this->request->ma_san_pham) {
             $query->where('h.ma_san_pham', $this->request->ma_san_pham);
         }
@@ -54,7 +50,7 @@ class PriceHistoryExport implements
         ->get();
     }
 
-    // 🔥 HEADER
+    // HEADER
     public function headings(): array
     {
         return [
@@ -68,7 +64,7 @@ class PriceHistoryExport implements
         ];
     }
 
-    // 🔥 DATA
+    // DATA
     public function map($row): array
     {
         $diff = $row->gia_nhap_moi - $row->gia_nhap_cu;
@@ -92,11 +88,10 @@ class PriceHistoryExport implements
         ];
     }
 
-    // 🔥 STYLE
     public function styles(Worksheet $sheet)
     {
         return [
-            1 => [ // dòng header
+            1 => [ 
                 'font' => ['bold' => true, 'size' => 12],
             ],
         ];

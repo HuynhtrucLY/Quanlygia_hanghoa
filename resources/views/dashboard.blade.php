@@ -162,28 +162,47 @@
     });
 
     new Chart(document.getElementById('marketChart'), {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{ 
-                label: 'Chênh lệch', 
-                data: marketDiff,
-                backgroundColor: marketDiff.map(v => v >= 0 ? '#20c997' : '#dc3545')
-            }]
-        },
-        options: {
-            ...chartOptions,
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let value = context.raw;
-                            return value >= 0 ? "Rẻ hơn TT: " + value.toLocaleString() + "đ" : "Mắc hơn TT: " + Math.abs(value).toLocaleString() + "đ";
-                        }
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [
+            {
+                label: 'Rẻ hơn thị trường',
+                data: marketDiff.map(v => v >= 0 ? v : null), 
+                backgroundColor: '#20c997', 
+            },
+            {
+                label: 'Mắc hơn thị trường',
+                data: marketDiff.map(v => v < 0 ? v : null), 
+                backgroundColor: '#dc3545', 
+            }
+        ]
+    },
+    options: {
+        ...chartOptions, 
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom', 
+                labels: {
+                    boxWidth: 20, 
+                    padding: 20, 
+                    font: {
+                        size: 12
+                    }
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        let value = context.raw;
+                        if (value === null) return null;
+                        return context.dataset.label + ": " + Math.abs(value).toLocaleString() + "đ";
                     }
                 }
             }
         }
-    });
+    }
+});
 </script>
 @endsection

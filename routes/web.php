@@ -11,7 +11,7 @@ use App\Http\Controllers\UserController;
 
 
 
-// 🔐 LOGIN
+// LOGIN
 // ================= MẶC ĐỊNH =================
 Route::get('/', function () {
     return redirect('/login');
@@ -56,12 +56,11 @@ Route::put('/prices/update/{id}', [PriceController::class, 'update'])->middlewar
 Route::get('/prices/compare', [PriceController::class, 'compare'])->middleware('auth');
 Route::get('/prices/alert', [PriceController::class, 'alert'])->middleware('auth');
 
-
-// 🏠 DASHBOARD
+// DASHBOARD
 Route::get('/dashboard', [DashboardController::class, 'index']);
 Route::get('/dashboard', [DashboardController::class, 'dashboard']);
 
-// 📦 PRODUCT
+// PRODUCT
 Route::get('/products', [ProductController::class,'index']);
 Route::get('/products/create', [ProductController::class,'create']);
 Route::post('/products/store', [ProductController::class,'store']);
@@ -69,15 +68,13 @@ Route::get('/products/edit/{id}', [ProductController::class,'edit']);
 Route::post('/products/update/{id}', [ProductController::class,'update']);
 Route::get('/products/delete/{id}', [ProductController::class,'delete']);
 
-// 🏢 SUPPLIER
+// SUPPLIER
 Route::get('/suppliers', [SupplierController::class,'index']);
 Route::get('/suppliers/create', [SupplierController::class,'create']);
 Route::post('/suppliers/store', [SupplierController::class,'store']);
 Route::get('/suppliers/edit/{id}', [SupplierController::class,'edit']);
 Route::post('/suppliers/update/{id}', [SupplierController::class,'update']);
 Route::get('/suppliers/delete/{id}', [SupplierController::class,'delete']);
-
-
 
 
 Route::get('/categories', [CategoryController::class, 'index']);
@@ -87,25 +84,18 @@ Route::get('/categories/edit/{id}', [CategoryController::class, 'edit']);
 Route::post('/categories/update/{id}', [CategoryController::class, 'update']);
 Route::get('/categories/delete/{id}', [CategoryController::class, 'delete']);
 
-
-
 Route::get('/prices/create', [PriceController::class, 'create']);
 Route::post('/prices/store', [PriceController::class, 'store']);
 Route::get('/prices/edit/{id}', [PriceController::class, 'edit']);
 Route::put('/prices/update/{id}', [PriceController::class, 'update']);
-// Thêm dấu hỏi chấm {supplierId?} để nó trở thành tham số không bắt buộc
 Route::get('/prices/history/{productId}/{supplierId?}', [PriceController::class, 'getPriceHistory']);
-
 Route::get('/prices/compare', [PriceController::class, 'compare'])
     ->name('prices.compare');
-
 Route::get('/prices', [PriceController::class, 'index'])->name('prices.index');
 Route::get('/prices/alert', [PriceController::class, 'alert'])->name('prices.alert');
 Route::get('/prices/recommend', [PriceController::class, 'recommend'])
     ->name('prices.recommend');
 
-
-// already imported above
 
 Route::get('/users', [UserController::class, 'index'])->middleware('auth');
 Route::post('/users/store', [UserController::class, 'store'])->middleware('auth');

@@ -7,17 +7,17 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <style>
         :root {
             --dark-grey: #2c3e50;
             --main-grey: #34495e;
             --accent-yellow: #f1c40f;
-            --bg-light: #f4f7f6;
         }
 
         body {
-            /* Thay đổi màu nền sang tông xám chuyên nghiệp của Dashboard */
             background: linear-gradient(135deg, #bdc3c7 0%, #2c3e50 100%);
             height: 100vh;
             display: flex;
@@ -28,14 +28,13 @@
         }
 
         .login-box {
-            width: 400px;
+            width: 420px; /* Tăng nhẹ để Captcha không bị chật */
             background: white;
             padding: 40px;
             border-radius: 15px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.3);
         }
 
-        /* Logo giống Sidebar Dashboard */
         .brand-logo {
             display: flex;
             justify-content: center;
@@ -84,7 +83,6 @@
             box-shadow: 0 0 0 0.25rem rgba(52, 73, 94, 0.1);
         }
 
-        /* Nút đăng nhập màu xám đậm của Dashboard */
         .btn-login {
             background: var(--dark-grey);
             border: none;
@@ -122,6 +120,7 @@
         <h3 class="title">Hệ thống quản lý giá</h3>
     </div>
 
+    {{-- THÔNG BÁO THÀNH CÔNG --}}
     @if(session('success'))
         <div id="successAlert" class="alert alert-success small py-2 text-center">
             <i class="fas fa-check-circle me-1"></i> {{ session('success') }}
@@ -133,24 +132,32 @@
 
         <div class="mb-3">
             <label><i class="fas fa-user me-2"></i>Tài khoản</label>
-            <input name="ten_dang_nhap" class="form-control" placeholder="Tên đăng nhập" required>
+            <input name="ten_dang_nhap" class="form-control" placeholder="Tên đăng nhập" value="{{ old('ten_dang_nhap') }}" required>
         </div>
 
-        <div class="mb-4">
+        <div class="mb-3">
             <label><i class="fas fa-lock me-2"></i>Mật khẩu</label>
             <input type="password" name="mat_khau" class="form-control" placeholder="••••••••" required>
+        </div>
+
+@if ($errors->has('g-recaptcha-response'))
+    <div class="alert alert-warning text-center small py-2 mb-3">
+        ⚠️ {{ $errors->first('g-recaptcha-response') }}
+    </div>
+@endif
+        <div class="mb-4 d-flex justify-content-center">
+            <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
         </div>
 
         <button class="btn btn-login w-100 shadow-sm">Đăng nhập</button>
 
         <div class="text-center mt-4">
             <span class="text-muted small">Chưa có tài khoản?</span>
-            <a href="/register" class="register-link small">
-                Đăng ký ngay
-            </a>
+            <a href="/register" class="register-link small">Đăng ký ngay</a>
         </div>
     </form>
 
+    {{-- THÔNG BÁO LỖI --}}
     @if(session('error'))
         <div class="alert alert-danger mt-3 small py-2 text-center">
             <i class="fas fa-exclamation-circle me-1"></i> {{ session('error') }}
@@ -159,7 +166,7 @@
 </div>
 
 <script>
-    // Tự động ẩn thông báo sau 3 giây
+    // Tự động ẩn thông báo thành công sau 3 giây
     setTimeout(function() {
         let alert = document.getElementById('successAlert');
         if(alert){

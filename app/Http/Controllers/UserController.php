@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 class UserController extends Controller
 {
-    // 🔹 Hiển thị danh sách
+    // Hiển thị danh sách
     public function index()
     {
-        // 🔥 Chặn không phải admin
+        // Chặn không phải admin
         if (Auth::user()->vai_tro != 'admin') {
             abort(403);
         }
@@ -24,7 +24,6 @@ class UserController extends Controller
     // 🔹 Thêm user
     public function store(Request $request)
 {
-    // ✅ VALIDATE + MESSAGE
     $request->validate([
         'ho_ten' => 'required',
         'ten_dang_nhap' => 'required|unique:users',
@@ -41,7 +40,7 @@ class UserController extends Controller
         'password.min' => 'Mật khẩu phải ít nhất 6 ký tự'
     ]);
 
-    // 🔥 Tạo user
+    // Tạo user
     $user = User::create([
         'ho_ten' => $request->ho_ten,
         'ten_dang_nhap' => $request->ten_dang_nhap,
@@ -51,9 +50,10 @@ class UserController extends Controller
         'trang_thai' => $request->trang_thai
     ]);
 
-    // 📩 GỬI MAIL
+    // GỬI MAIL
     try {
         Mail::raw(
+            "THÔNG BÁO TỪ HỆ THỐNG QUẢN LÝ GIÁ\n\n".
             "🎉 Tài khoản của bạn đã được tạo!\n\n".
             "👤 Họ tên: {$user->ho_ten}\n".
             "🔑 Tên đăng nhập: {$user->ten_dang_nhap}\n".
@@ -65,13 +65,12 @@ class UserController extends Controller
             }
         );
     } catch (\Exception $e) {
-        // bỏ qua lỗi mail
     }
 
     return back()->with('success', '✔ Thêm user + gửi mail thành công!');
 }
 
-    // 🔹 Xóa user
+    // Xóa user
     public function delete($id)
     {
         $user = User::find($id);
@@ -80,12 +79,12 @@ class UserController extends Controller
             return back()->with('error', 'User không tồn tại!');
         }
 
-        // ❌ Không cho xóa chính mình
+        // Không cho xóa chính mình
         if (Auth::user()->ma_nguoi_dung == $id) {
             return back()->with('error', 'Không thể xóa chính mình!');
         }
 
-        // ❌ Không cho xóa admin
+        // Không cho xóa admin
         if ($user->vai_tro == 'admin') {
             return back()->with('error', 'Không thể xóa tài khoản admin!');
         }

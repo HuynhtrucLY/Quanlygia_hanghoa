@@ -70,11 +70,11 @@
                 <div class="col-md-4" id="quarterBox" style="display:none;">
                     <label class="form-label fw-bold text-dark">Quý</label>
                     <select name="quarter" class="form-select shadow-none">
-                        <option value="1">Quý I</option>
-                        <option value="2">Quý II</option>
-                        <option value="3">Quý III</option>
-                        <option value="4">Quý IV</option>
-                    </select>
+    <option value="1" {{ request('quarter') == 1 ? 'selected' : '' }}>Quý I</option>
+    <option value="2" {{ request('quarter') == 2 ? 'selected' : '' }}>Quý II</option>
+    <option value="3" {{ request('quarter') == 3 ? 'selected' : '' }}>Quý III</option>
+    <option value="4" {{ request('quarter') == 4 ? 'selected' : '' }}>Quý IV</option>
+</select>
                 </div>
             </div>
         </form>
@@ -114,10 +114,10 @@
                         <td class="{{ $profit >= 0 ? 'text-success' : 'text-danger' }} fw-bold text-nowrap">
                             {{ number_format($profit) }} đ
                         </td>
-                        <td class="{{ $percent >= 0 ? 'text-success' : 'text-danger' }} fw-semibold">
+                        <td class="{{ $percent >= 0 ? 'text-success' : 'text-success' }} fw-semibold">
                             {{ number_format($percent, 2) }}%
                         </td>
-                        <td class="{{ $percentSell >= 0 ? 'text-success' : 'text-danger' }} fw-semibold">
+                        <td class="{{ $percentSell >= 0 ? 'text-danger' : 'text-success' }} fw-semibold">
                             {{ number_format($percentSell, 2) }}%
                         </td>
                     </tr>

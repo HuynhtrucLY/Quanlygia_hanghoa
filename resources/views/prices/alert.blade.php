@@ -7,18 +7,18 @@
         <h3 class="m-0 text-uppercase fs-5 fw-bold">🚨 CẢNH BÁO BIẾN ĐỘNG GIÁ</h3>
     </div>
 
-    <div class="card border-0 shadow-sm" style="border-radius: 8px; overflow: hidden;">
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
         <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead class="bg-light border-bottom">
-                    <tr>
-                        <th class="ps-4 py-3 text-muted fw-bold small">SẢN PHẨM</th>
-                        <th class="py-3 text-muted fw-bold small">NHÀ CUNG CẤP</th>
-                        <th class="py-3 text-muted fw-bold small text-end">GIÁ NHẬP</th>
-                        <th class="py-3 text-muted fw-bold small text-end">GIÁ BÁN</th>
-                        <th class="py-3 text-muted fw-bold small text-end">THỊ TRƯỜNG</th>
-                        <th class="py-3 text-muted fw-bold small text-center">CẢNH BÁO</th>
-                        <th class="pe-4 py-3 text-muted fw-bold small text-end">LỢI NHUẬN</th>
+            <table class="table table-bordered table-hover align-middle mb-0 text-center"> 
+                <thead class="bg-light">
+                    <tr class="text-secondary small">
+                        <th class="py-3 fw-bold">SẢN PHẨM</th>
+                        <th class="py-3 fw-bold">NHÀ CUNG CẤP</th>
+                        <th class="py-3 fw-bold">GIÁ NHẬP</th>
+                        <th class="py-3 fw-bold">GIÁ BÁN</th>
+                        <th class="py-3 fw-bold">GIÁ THỊ TRƯỜNG</th>
+                        <th class="py-3 fw-bold">CẢNH BÁO</th>
+                        <th class="py-3 fw-bold">LỢI NHUẬN</th>
                     </tr>
                 </thead>
 
@@ -31,48 +31,49 @@
                         $isBuyHigh  = $a->gia_nhap > $a->gia_thi_truong;
                     @endphp
 
-                    <tr class="border-bottom">
-                        <td class="ps-4 py-3 fw-bold text-dark">{{ $a->ten_san_pham }}</td>
+                    <tr>
+                        <td class="py-3 fw-bold text-dark text-start ps-3">{{ $a->ten_san_pham }}</td>
+                        
                         <td class="text-secondary small">{{ $a->ten_nha_cung_cap }}</td>
 
-                        <td class="text-end fw-semibold {{ $isBuyHigh ? 'text-danger' : 'text-dark' }}">
+                        <td class="fw-bold text-danger">
                             {{ number_format($a->gia_nhap, 0, ',', '.') }} đ
                         </td>
 
-                        <td class="text-end fw-semibold {{ $isSellHigh ? 'text-danger' : 'text-primary' }}">
+                        <td class="fw-bold text-primary">
                             {{ number_format($a->gia_ban, 0, ',', '.') }} đ
                         </td>
 
-                        <td class="text-end text-muted small">
+                        <td class="text-muted">
                             {{ number_format($a->gia_thi_truong, 0, ',', '.') }} đ
                         </td>
 
-                        <td class="text-center px-2">
-                            <div class="d-flex flex-row justify-content-center gap-1 flex-wrap">
+                        <td>
+                            <div class="d-flex justify-content-center gap-1">
                                 @if($isSellHigh)
-                                    <span class="badge border border-danger text-danger fw-normal rounded-1 px-2 py-1" style="font-size: 0.7rem;">Bán cao</span>
+                                    <span class="badge border border-danger text-danger fw-normal rounded-1">Bán cao</span>
                                 @endif
                                 @if($isBuyHigh)
-                                    <span class="badge border border-warning text-warning fw-normal rounded-1 px-2 py-1" style="font-size: 0.7rem;">Nhập cao</span>
+                                    <span class="badge border border-warning text-warning fw-normal rounded-1">Nhập cao</span>
                                 @endif
                                 @if($profitPercent < 5)
-                                    <span class="badge border border-secondary text-secondary fw-normal rounded-1 px-2 py-1" style="font-size: 0.7rem;">Lãi thấp</span>
+                                    <span class="badge border border-secondary text-secondary fw-normal rounded-1">Lãi thấp</span>
                                 @endif
                             </div>
                         </td>
 
-                        <td class="pe-4 text-end">
+                        <td>
                             <span class="fw-bold {{ $profit < 0 ? 'text-danger' : 'text-success' }}">
                                 {{ number_format($profit, 0, ',', '.') }} đ
                             </span>
-                            <div class="text-muted" style="font-size: 0.7rem;">
+                            <div class="text-muted small" style="font-size: 0.75rem;">
                                 ({{ number_format($profitPercent, 1) }}%)
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="py-5 text-center text-muted small">
+                        <td colspan="7" class="py-5 text-center text-muted">
                             Hiện chưa có cảnh báo nào từ hệ thống.
                         </td>
                     </tr>
@@ -82,9 +83,4 @@
         </div>
     </div>
 </div>
-
-<style>
-    tr:hover { background-color: #fafafa; transition: 0.2s; }
-</style>
-
 @endsection
