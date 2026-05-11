@@ -18,7 +18,7 @@ class PriceHistoryExport implements
     ShouldAutoSize,
     WithStyles
 {
-    protected $request;
+    protected Request $request;
 
     public function __construct(Request $request)
     {

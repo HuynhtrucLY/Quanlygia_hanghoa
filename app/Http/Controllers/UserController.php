@@ -54,7 +54,7 @@ class UserController extends Controller
     try {
         Mail::raw(
             "THÔNG BÁO TỪ HỆ THỐNG QUẢN LÝ GIÁ\n\n".
-            "🎉 Tài khoản của bạn đã được tạo!\n\n".
+            "Tài khoản của bạn đã được tạo!\n".
             "👤 Họ tên: {$user->ho_ten}\n".
             "🔑 Tên đăng nhập: {$user->ten_dang_nhap}\n".
             "🔒 Mật khẩu: {$request->password}\n\n".
@@ -71,7 +71,7 @@ class UserController extends Controller
 }
 
     // Xóa user
-    public function delete($id)
+    public function delete(int $id)
     {
         $user = User::find($id);
 
@@ -94,7 +94,7 @@ class UserController extends Controller
         return back()->with('success', 'Đã xóa!');
     }
 
-    public function toggle($id)
+    public function toggle(int $id)
 {
     $user = User::where('ma_nguoi_dung', $id)->first();
 
@@ -111,7 +111,7 @@ class UserController extends Controller
     return back()->with('success', '✔ Đã cập nhật trạng thái!');
 }
 
-public function reset($ma_nguoi_dung)
+public function reset(int $ma_nguoi_dung)
 {
     $user = User::where('ma_nguoi_dung', $ma_nguoi_dung)->first();
 

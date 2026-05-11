@@ -177,7 +177,7 @@ public function login(Request $request)
     return back()->with('success', '✅ Đổi mật khẩu thành công!');
 }
     // ================= ADMIN DUYỆT =================
-    public function approve($id)
+    public function approve(int $id)
     {
         $user = User::where('ma_nguoi_dung', $id)->first();
 

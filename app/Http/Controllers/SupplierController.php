@@ -42,13 +42,13 @@ class SupplierController extends Controller
         return redirect('/suppliers')->with('success', 'Thêm nhà cung cấp thành công');
     }
 
-    public function edit($id)
+    public function edit(int $id)
     {
         $supplier = Supplier::findOrFail($id);
         return view('suppliers.edit', compact('supplier'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         $request->validate([
             'ten_nha_cung_cap' => 'required',
@@ -61,7 +61,7 @@ class SupplierController extends Controller
         return redirect('/suppliers')->with('success', 'Cập nhật thành công');
     }
 
-    public function delete($id)
+    public function delete(int $id)
     {
         try {
             $supplier = Supplier::findOrFail($id);
