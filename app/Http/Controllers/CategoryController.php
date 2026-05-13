@@ -8,7 +8,7 @@ use App\Models\Category;
 class CategoryController extends Controller
 {
     public function index(Request $request)
-{
+    {
     $keyword = trim($request->keyword);
 
     $categories = Category::query()
@@ -19,7 +19,7 @@ class CategoryController extends Controller
         ->paginate(10);
 
     return view('categories.index', compact('categories', 'keyword'));
-}
+    }
 
     public function create()
     {
@@ -39,13 +39,13 @@ class CategoryController extends Controller
         return redirect('/categories')->with('success', 'Thêm danh mục thành công');
     }
 
-    public function edit($id)
+    public function edit(int $id)
     {
         $category = Category::findOrFail($id);
         return view('categories.edit', compact('category'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         $request->validate([
             'ten_danh_muc' => 'required'
@@ -60,7 +60,7 @@ class CategoryController extends Controller
         return redirect('/categories')->with('success', 'Cập nhật thành công');
     }
 
-    public function delete($id)
+    public function delete(int $id)
     {
         try {
             $category = Category::findOrFail($id);

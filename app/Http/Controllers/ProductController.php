@@ -52,7 +52,7 @@ class ProductController extends Controller
         return redirect('/products')->with('success', 'Thêm sản phẩm thành công');
     }
 
-    public function edit($id)
+    public function edit(int $id)
     {
         $product = Product::findOrFail($id);
         $categories = DB::table('categories')->get();
@@ -60,7 +60,7 @@ class ProductController extends Controller
         return view('products.edit', compact('product', 'categories'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id)
     {
         $request->validate([
             'ten_san_pham' => 'required',
@@ -73,7 +73,7 @@ class ProductController extends Controller
         return redirect('/products')->with('success', 'Cập nhật thành công');
     }
 
-    public function delete($id)
+    public function delete(int $id)
     {
         try {
             $product = Product::findOrFail($id);

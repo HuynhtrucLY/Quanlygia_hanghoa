@@ -12,7 +12,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Category;
 use App\Models\PriceHistory;
 use App\Exports\PriceHistoryExport;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
+
 
 
 class PriceController extends Controller
@@ -155,7 +155,7 @@ class PriceController extends Controller
 }
 
     // FORM SỬA
-    public function edit($id)
+    public function edit(int $id)
     {
         $price = Price::findOrFail($id);
         $products = Product::all();
@@ -165,7 +165,7 @@ class PriceController extends Controller
     }
 
 
-public function update(Request $request, $id)
+public function update(Request $request, int $id)
 {
     $loi_nhuan = str_replace('%', '', $request->loi_nhuan);
     $loi_nhuan = (float) trim($loi_nhuan);
@@ -256,7 +256,7 @@ public function update(Request $request, $id)
 }
 
     //  XEM LỊCH SỬ GIÁ
-public function getPriceHistory($productId, $supplierId)
+public function getPriceHistory(int $productId, int $supplierId)
 {
     $history = DB::table('price_history as h')
         ->join('products as p', 'p.ma_san_pham', '=', 'h.ma_san_pham')

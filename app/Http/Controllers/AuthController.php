@@ -21,8 +21,8 @@ class AuthController extends Controller
     }
 
   
-public function login(Request $request)
-{
+    public function login(Request $request)
+    {
     $request->validate([
         'ten_dang_nhap' => 'required',
         'mat_khau' => 'required',
@@ -69,7 +69,7 @@ public function login(Request $request)
     $request->session()->regenerate();
 
     return redirect('/dashboard');
-}
+    }
 
     // ================= REGISTER =================
     public function showRegister()
@@ -78,7 +78,7 @@ public function login(Request $request)
     }
 
     public function register(Request $request)
-{
+    {
     $request->validate([
         'ho_ten' => 'required',
         'ten_dang_nhap' => 'required|unique:users',
@@ -120,7 +120,7 @@ public function login(Request $request)
     } catch (\Exception $e) {}
 
     return redirect('/login')->with('success', 'Đăng ký thành công! Chờ admin duyệt.');
-}
+    }
     // ================= LOGOUT =================
     public function logout(Request $request)
     {
@@ -140,7 +140,7 @@ public function login(Request $request)
 
     // ================= CHANGE PASSWORD =================
    public function changePassword(Request $request)
-{
+    {
     // validate mật khẩu hiện tại
     $request->validate([
         'current_password' => 'required',
@@ -157,7 +157,7 @@ public function login(Request $request)
 
     // check mật khẩu hiện tại
     if (!Hash::check($request->current_password, $user->password)) {
-        return back()->with('error', '❌ Mật khẩu hiện tại không đúng!');
+        return back()->with('error', ' Mật khẩu hiện tại không đúng!');
     }
 
     // validate mật khẩu mới (ĐẦY ĐỦ LUÔN)
@@ -174,8 +174,8 @@ public function login(Request $request)
         'password' => Hash::make($request->password)
     ]);
 
-    return back()->with('success', '✅ Đổi mật khẩu thành công!');
-}
+    return back()->with('success', ' Đổi mật khẩu thành công!');
+    }
     // ================= ADMIN DUYỆT =================
     public function approve(int $id)
     {

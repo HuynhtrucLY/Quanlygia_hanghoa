@@ -11,11 +11,9 @@ class DashboardController extends Controller
     {
         $totalProducts = DB::table('products')->count();
         $totalSuppliers = DB::table('suppliers')->count();
-
-        // dropdown sản phẩm
+        
         $products = DB::table('products')->get();
 
-        // DÙNG prices (KHÔNG dùng price_history nữa)
         $query = DB::table('prices')
             ->join('products', 'products.ma_san_pham', '=', 'prices.ma_san_pham')
             ->join('suppliers', 'suppliers.ma_nha_cung_cap', '=', 'prices.ma_nha_cung_cap')
